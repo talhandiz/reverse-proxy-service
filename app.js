@@ -33,7 +33,7 @@ app.use((req, res) => {
   const targetUrl = template({
     headers: req.headers,
 
-    //request kısmı olmadanda otomatik olarak hedef URL ye ekleniyor
+   
     request: {
       url: req.url,
       method: req.method,
