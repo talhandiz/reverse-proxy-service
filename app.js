@@ -7,7 +7,7 @@ const Handlebars = require('handlebars');
 const app = express();
 const proxy = httpProxy.createProxyServer({});
 
-const targetUrlTemplate = process.env.TARGET_URL_TEMPLATE || 'https://{{headers.x-target-host}}{{request.url}}';
+const baseTargetUrlTemplate = process.env.BASE_TARGET_URL_TEMPLATE || 'https://{{headers.x-target-host}}{{request.url}}';
 const port = process.env.PORT || 8000;
 
 app.use(morgan('combined'));
@@ -29,8 +29,8 @@ const proxyOptions = {
   changeOrigin: true
 };
 app.use((req, res) => {
-  const template = Handlebars.compile(targetUrlTemplate);
-  const targetUrl = template({
+  const template = Handlebars.compile(baseTargetUrlTemplate);
+  const baseTargetUrl = template({
     headers: req.headers,
 
    
@@ -42,9 +42,9 @@ app.use((req, res) => {
   });
 
   console.log(`Request URL: ${req.url}`);
-  console.log(`Generated target URL: ${targetUrl}`);
+  console.log(`Generated base target URL: ${baseTargetUrl}`);
 
-  proxy.web(req, res, { ...proxyOptions, target: targetUrl }, (err) => {
+  proxy.web(req, res, { ...proxyOptions, target: baseTargetUrl }, (err) => {
     console.error('Proxy hatası:', err);
     res.status(500).json({ errorMessage: 'Proxy sunucusuna bağlanılamadı.' });
   });
@@ -59,5 +59,5 @@ proxy.on('error', (err, req, res) => {
 
 
 app.listen(port, () => {
-  console.log(`Proxy server ${port} portunda çalışıyor. Template URL: ${targetUrlTemplate}`);
+  console.log(`Proxy server ${port} portunda çalışıyor. Base Template URL: ${baseTargetUrlTemplate}`);
 });
